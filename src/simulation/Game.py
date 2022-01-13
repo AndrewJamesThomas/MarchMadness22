@@ -29,6 +29,8 @@ class Game(Tournament):
         # init super class
         super().__init__()
 
+        # TODO: Make this all one dictionary. That'll be more compact and better organized
+        # TODO: the last_game field is a little messed up. There needs to be two and they neeed to be tied to the teams
         # Game information; loaded on init
         self.game_id = current_game_id
         self.last_game = last_game
@@ -101,10 +103,19 @@ class Game(Tournament):
         else:
             print("Game not yet played. Play game first then proceed")
 
-
-if __name__ == "__main__":
-    # do stuff
-
-    game1 = Game(1, 2, 3, 4)
-    game1.load_game(1, 2)
-    game1.simulate_game()
+# TODO: Write tournement simulation; create dictionary of all game ids and assign a game object as the value
+# ie:
+'''
+    {
+        round1 {
+            game1: Game(...),
+            game2: Game(...),
+            ...
+            round2 {
+            game12: Game(...),
+            ...
+                    }
+                }
+    }
+'''
+# Then find a way to loop through that tournement, execute the games, return the results, and repeat
