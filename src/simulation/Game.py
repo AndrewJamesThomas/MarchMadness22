@@ -3,9 +3,9 @@ import numpy as np
 
 
 class Tournament:
-    '''
+    """
     Load external data that will be used in the tournament. This includes predictions, team names, etc.
-    '''
+    """
     def __init__(self,
                  team_details_path="src/simulation/data/team_details.csv",
                  game_predictions="assets/PreviousYear/game_predictions.csv"):
@@ -15,93 +15,95 @@ class Tournament:
 
 
 class Game(Tournament):
-    '''
-    Sets up and simulates a game
-    '''
-    def __init__(self, current_game_id, last_game, next_game, tournament_round):
-        '''
+    def __init__(self, current_game_id, next_game, tournament_round):
+        """
+        Initialize game by entering game id, next game id and tournament round
 
         :param current_game_id: The current ID for that game
-        :param last_game: The Game ID for the last game both teams played in
         :param next_game: The Game ID that the teams will play in next
-        :param tournament_round: The tournement round for this game
-        '''
+        :param tournament_round: The tournament round for this game
+        """
         # init super class
         super().__init__()
 
-        # TODO: Make this all one dictionary. That'll be more compact and better organized
-        # TODO: the last_game field is a little messed up. There needs to be two and they neeed to be tied to the teams
-        # Game information; loaded on init
-        self.game_id = current_game_id
-        self.last_game = last_game
-        self.next_game = next_game
-        self.round = tournament_round
-
-        # Team information; loaded by "load_game" method
-        self.teams = [None, None]
-        self.team_names = [None, None]
-        self.seeds = [None, None]
-        self.team1_proba = None
-
-        # Game outcomes; loaded with "play_game" method
-        self.played = False
-        self.winner = None
-        self.points_earned = self.points_lookup[self.round]
+        self.game = {
+            "game_id": current_game_id,
+            "next_game_id": next_game,
+            "round": tournament_round,
+            "team1": {"team_id": None,
+                      "team_name": None,
+                      "seed": None,
+                      "last_game": None},
+            "team2": {"team_id": None,
+                      "team_name": None,
+                      "seed": None,
+                      "last_game": None},
+            "played": False,
+            "winner": None,
+            "team1_probability": -1,
+            "points_earned": self.points_lookup[tournament_round]
+        }
 
     def __str__(self):
-        line1 = f"Game ID: {self.game_id}; Round: {self.round}"
-        line2 = f"{self.team_names[0]} ({self.seeds[0]}) Vs. {self.team_names[1]} ({self.seeds[1]})"
-        line3 = f"Probability that {self.team_names[0]} wins: {self.team1_proba:.2f}"
+        line1 = f"Game ID: {self.game['game_id']}; Round: {self.game['round']}"
+        line2 = f"{self.game['team1']['team_name']} ({self.game['team1']['seed']}) Vs. " \
+                f"{self.game['team2']['team_name']} ({self.game['team2']['seed']})"
+        line3 = f"Probability that {self.game['team1']['team_name']} wins: {self.game['team1_probability']:.2f}"
 
         return f"{line1}\n{line2}\n{line3}"
 
-    def load_game(self, team1, team2):
-        '''
+    def load_game(self, team1_id, team2_id):
+        """
         Adds the teams to the game and updates their details. Note, use the team ID NUMBERS, not names
-        :param team1: Team ID for the first team
-        :param team2: Team ID for the second team
+        :param team1_id: Team ID for the first team
+        :param team2_id: Team ID for the second team
         :return: None
-        '''
-        self.teams[0] = team1
-        self.teams[1] = team2
+        """
+        self.game['team1']['team_id'] = team1_id
+        self.game['team2']['team_id'] = team2_id
 
-        self.seeds[0] = self.team_details[self.team_details["team_id"] == team1]["seed"].values[0]
-        self.seeds[1] = self.team_details[self.team_details["team_id"] == team2]["seed"].values[0]
+        self.game['team1']['seed'] = self.team_details[self.team_details["team_id"] == team1_id]["seed"].values[0]
+        self.game['team2']['seed'] = self.team_details[self.team_details["team_id"] == team2_id]["seed"].values[0]
 
-        self.team_names[0] = self.team_details[self.team_details["team_id"] == team1]["team_name"].values[0]
-        self.team_names[1] = self.team_details[self.team_details["team_id"] == team2]["team_name"].values[0]
+        self.game['team1']['team_name'] = self.team_details[self.team_details["team_id"] == team1_id]["team_name"].values[0]
+        self.game['team2']['team_name'] = self.team_details[self.team_details["team_id"] == team2_id]["team_name"].values[0]
 
-        self.team1_proba = self.predictions.loc[self.team_names[0], self.team_names[1]]
+        self.game['team1_probability'] = self.predictions.loc[self.game['team1']['team_name'], self.game['team2']['team_name']]
 
     def simulate_game(self, display_results=False):
-        '''
-        Simulate the game and returns a winner. Simulation is based on the predicted probaiblity
+        """
+        Simulate the game and returns a winner. Simulation is based on the predicted probability
         and a randomly generated number. Displays the results of the game when done if desired
         :param display_results: set to True to print results (bool)
         :return: None
-        '''
-        self.played = True
-        if np.random.rand() <= self.team1_proba:
-            self.winner = self.teams[0]
-            if self.seeds[0] > self.seeds[1]:
-                self.points_earned += (self.seeds[0] - self.seeds[1])
+        """
+        self.game["points_earned"] = self.points_lookup[self.game["round"]]
+        self.game["played"] = True
+        if np.random.rand() <= self.game["team1_probability"]:
+            self.game["winner"] = self.game['team1']['team_name']
+            if self.game['team1']['seed'] > self.game['team2']['seed']:
+                self.game["points_earned"] += (self.game['team1']['seed'] - self.game['team2']['seed'])
         else:
-            self.winner = self.teams[1]
-            if self.seeds[1] > self.seeds[0]:
-                self.points_earned += (self.seeds[1] - self.seeds[0])
+            self.game["winner"] = self.game['team2']['team_name']
+            if self.game['team2']['seed'] > self.game['team1']['seed']:
+                self.game["points_earned"] += (self.game['team2']['seed'] - self.game['team1']['seed'])
         if display_results:
             self.show_game_result()
 
     def show_game_result(self):
-        '''
+        """
         Prints the results of the game
         :return: None
-        '''
-        if self.played:
-            winning_team = self.team_details[self.team_details["team_id"] == self.winner]["team_name"].values[0]
-            print(f"Game Winner: {winning_team}\nPoints Scored: {self.points_earned}")
+        """
+        if self.game["played"]:
+            print(f"Game Winner: {self.game['winner']}\nPoints Scored: {self.game['points_earned']}")
         else:
             print("Game not yet played. Play game first then proceed")
+
+
+if __name__ == "__main__":
+    game = Game(1, 2, 1)
+    game.load_game(1, 2)
 
 # TODO: Write tournement simulation; create dictionary of all game ids and assign a game object as the value
 # ie:
