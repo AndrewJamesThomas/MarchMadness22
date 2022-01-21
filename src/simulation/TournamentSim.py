@@ -1,4 +1,9 @@
+import pandas as pd
 from src.simulation.Game import Game
+from tqdm import tqdm
+
+# change this variable as needed
+N = 10000
 
 class TournamentSim:
     def __init__(self):
@@ -155,17 +160,22 @@ class TournamentSim:
 
 if __name__ == "__main__":
     # step 7: Repeat steps 1-7 10,000 times
-    # TODO: Speed this up, probably using Numpy; or just run for a long time
     simulation = []
-    N = 100
-    for x in range(N):
+    for x in tqdm(range(N)):
         T = TournamentSim()
         T.simulate_tournament()
         res = T.export_results()
         simulation.append(res)
 
-    winner = []
-    for i in simulation:
-        winner.append(i[62][1])
+    # create dataframe
+    export = pd.DataFrame(simulation)
 
-# TODO: Use this to optimize bracket
+    # rename columns
+    export.columns = export.iloc[0].apply(lambda x: x[0])
+
+    # create winners column
+    winning_teams = export.applymap(lambda x: x[1])
+    points_earned = export.applymap(lambda x: x[2])
+
+    winning_teams.to_csv("src/optimization/data/winning_teams.csv", index=False)
+    points_earned.to_csv("src/optimization/data/points_earned.csv", index=False)
