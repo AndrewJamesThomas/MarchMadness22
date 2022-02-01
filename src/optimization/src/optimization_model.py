@@ -30,9 +30,7 @@ for g in games:
 # Solver the problem
 SolverFactory("glpk").solve(model)
 # without constraints we would expect this to return all ones
-ls
 # TODO: export to excel and visualize results
 pd.DataFrame([(model.dv[i](), i[0], i[1]) for i in model.dv])\
     .pivot(index=1, columns=2)[0]\
-    .to_csv("src/dashboard/data/optimal_results.csv", index=False)
-
+    .to_csv("src/dashboard/data/optimal_results.csv", index=True)
