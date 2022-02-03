@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from pyomo.environ import *
 
+# TODO: debug the points file
 points = pd.read_csv("src/optimization/data/points_earned.csv")
 winners = pd.read_csv("src/optimization/data/winning_teams.csv")
 details = pd.read_csv("src/simulation/data/team_details.csv")
@@ -30,7 +31,7 @@ for g in games:
 # Solver the problem
 SolverFactory("glpk").solve(model)
 # without constraints we would expect this to return all ones
-# TODO: export to excel and visualize results
+
 pd.DataFrame([(model.dv[i](), i[0], i[1]) for i in model.dv])\
     .pivot(index=1, columns=2)[0]\
     .to_csv("src/dashboard/data/optimal_results.csv", index=True)
