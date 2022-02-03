@@ -153,8 +153,8 @@ class TournamentSim:
         output = []
         for g in self.all_games.keys():
             winner = self.all_games[g].game["winner"]
-            winner_id = self.all_games[g].game["winner_id"]
-            output.append((g, winner, winner_id))
+            points = self.all_games[g].game["points_earned"]
+            output.append((g, winner, points))
         return output
 
 
