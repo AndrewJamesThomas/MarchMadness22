@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 from pyomo.environ import *
 
-# TODO: debug the points file
 points = pd.read_csv("src/optimization/data/points_earned.csv")
 winners = pd.read_csv("src/optimization/data/winning_teams.csv")
 details = pd.read_csv("src/simulation/data/team_details.csv")
