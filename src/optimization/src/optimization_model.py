@@ -34,3 +34,7 @@ SolverFactory("glpk").solve(model)
 pd.DataFrame([(model.dv[i](), i[0], i[1]) for i in model.dv])\
     .pivot(index=1, columns=2)[0]\
     .to_csv("src/dashboard/data/optimal_results.csv", index=True)
+
+# export results distribution
+pd.DataFrame([sum([points.loc[i, g] * model.dv[(winners.loc[i, g], g)]() for g in games]) for i in sims])\
+    .to_csv("src/dashboard/data/optimal_distribution.csv", index=False)
