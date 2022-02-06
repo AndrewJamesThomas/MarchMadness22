@@ -62,10 +62,10 @@ for t in teams:
     model.cons.add(tournament_rule(model, t, "C22", "C13", "C14"))
     model.cons.add(tournament_rule(model, t, "C23", "C15", "C16"))
     model.cons.add(tournament_rule(model, t, "C24", "C17", "C18"))
-    model.cons.add(tournament_rule(model, t, "D21", "E11", "E12"))
-    model.cons.add(tournament_rule(model, t, "D22", "E13", "E14"))
-    model.cons.add(tournament_rule(model, t, "D23", "E15", "E16"))
-    model.cons.add(tournament_rule(model, t, "D24", "E17", "E18"))
+    model.cons.add(tournament_rule(model, t, "D21", "D11", "D12"))
+    model.cons.add(tournament_rule(model, t, "D22", "D13", "D14"))
+    model.cons.add(tournament_rule(model, t, "D23", "D15", "D16"))
+    model.cons.add(tournament_rule(model, t, "D24", "D17", "D18"))
 
 # Solver the problem
 SolverFactory("glpk").solve(model)
