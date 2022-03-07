@@ -1,3 +1,31 @@
+Notes
+-----
+The following files can be ignored
+    Cities
+    Conferences
+    MConferenceTourneyGames
+    MGameCities
+    MNCAATourneyDetailedResults
+    MNCAATourneySeedRoundSlates
+    MNCAATourneySeeds
+    MNCAATourneySlots
+    MSeasons
+    MSecondaryTourneyTeams
+    MTeamCoaches
+    MTeamConferences
+
+The following are potentially useful
+    MRegularSeasonDetailedResults - lots of stats about regular season games, useful for advanced modelling
+    MSampleSubmissionStage1 - example of how to submit results to Kaggle competition
+    MSecondaryTourneyCompactResults - Good for testing non-March Madness games
+    MNCAATourneyDetailedResults
+
+The following files are useful
+    MMasseyOrdinals - Rankings Data, main independent var
+    MNCAATourneyCompactResults - Tournament Results, good for testing
+    MRegularSeasonCompactResults - regular season results, independent variable for training
+    MTeams - ties teamIDs to Team Names
+
 _______
 rankings
 -------
@@ -13,12 +41,29 @@ Raw File:
 
 Transformations:
     Transform from long to wide
-    Rename columns
-    handle dtypes as needed
     handle NULL values (probably row-wise deletion)
+    Rename columns
     Save to CSV
 
 Output File(s):
     team_rankings.csv
 
+----------------------
+Regular Season Results
+----------------------
+Description:
+    Lists every regular season game, their game number, the year and winning/losing team IDs
 
+Raw File:
+    MNCAATourneyCompactResults
+
+Transformations:
+    Rename columns
+    Add "win_ind" column
+    drop unneeded columns
+    subset to two different dataframes: only winners and only losers. Then append them together
+# this is probably the most controversial decision in this entire modelling processing
+
+Output File(s):
+    regular_season_games.csv
+----------------------------
