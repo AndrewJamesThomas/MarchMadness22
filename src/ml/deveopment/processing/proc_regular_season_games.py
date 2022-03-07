@@ -5,7 +5,7 @@
 #     Lists every regular season game, their game number, the year and winning/losing team IDs
 
 # Raw File:
-#     MNCAATourneyCompactResults
+#     MRegularSeasonCompactResults
 
 # Transformations:
 #     Add "win_ind" column
@@ -19,7 +19,7 @@
 # -------------------------------
 import pandas as pd
 
-df = pd.read_csv("src/ml/raw_data/mens-march-mania-2022/MDataFiles_Stage1/MNCAATourneyCompactResults.csv")
+df = pd.read_csv("src/ml/raw_data/mens-march-mania-2022/MDataFiles_Stage1/MRegularSeasonCompactResults.csv")
 
 # drop columns
 df = df.drop(["WScore", "LScore", "WLoc", "NumOT"], axis=1)
