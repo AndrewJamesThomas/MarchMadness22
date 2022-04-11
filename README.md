@@ -1,7 +1,7 @@
 # 2022 Model in Review
-The 2022 MNCAA Model was, by most measures, a failure. In the main bracket, it finished 29th out of 44; in the office bracket it finished 2nd out of 3; and on Kaggle it finished 194 out of 930 (top 20th percentile) with a log loss of 0.62. While none of these results (with the arguable exception of the Kaggle competition) are acceptable, there is still cause to believe that this approach will be more fruitful in the future.
+The 2022 MNCAA Model was, by most measures, a failure. In the main bracket, it <b>finished 29th out of 44</b>; in the office bracket it finished <b>2nd out of 3</b>; and on Kaggle it finished <b>194 out of 930</b> (top 20th percentile) with a <b>log loss of 0.62</b>. While none of these results (with the arguable exception of the Kaggle competition) are acceptable, there is still cause to believe that this approach will be more fruitful in the future.
 
-There are three primary reasons why this model failed: misunderstandings about the scoring, poor model performance, and old-fashioned bad luck. The first of these problems is the most frustrating, but the easiest to fix. This bracket uses a non-traditional scoring approach that assigns a points bonus if you correctly call an upset. However, I did not realize that you had to predict both teams involved in the upset, not just the winner. For example, there were numerous games in the second round in which the model correctly predicted the winner, but not the looser, thus I did not receive the bonus. However, it’s not clear how much of an impact this mistake had on overall performance. Even under the presumed scoring rules, the model would have earned only 110 points, well short of the 157 points needed to win. None-the-less, it would be interesting to explore how a correct optimization model would have performed in this tournament.
+There are three primary reasons why this model failed: <b>misunderstandings about the scoring, poor model performance, and old-fashioned bad luck.</b> The first of these problems is the most frustrating, but the easiest to fix. This bracket uses a non-traditional scoring approach that assigns a points bonus if you correctly call an upset. However, I did not realize that you had to predict both teams involved in the upset, not just the winner. For example, there were numerous games in the second round in which the model correctly predicted the winner, but not the looser, thus I did not receive the bonus. However, it’s not clear how much of an impact this mistake had on overall performance. Even under the presumed scoring rules, the model would have earned only 110 points, well short of the 157 points needed to win. None-the-less, it would be interesting to explore how a correct optimization model would have performed in this tournament.
 
 Fixing the optimization model is straightforward but will require modifying both the simulation code and the optimization model. The simulation will need to be adjusted to output a matrix of points earned without the bonus, as well as another matrix that outputs just the bonus points earned (along with the two team IDs). We can then use the “virtual index(match) trick” to check if we correctly called those games and, if so, apply the appropriate bonus.
 
@@ -20,22 +20,26 @@ However, there is one thing that did work well: The excel dashboard. It was ugly
 # How the model works
 The model itself is broken into three parts, plus an excel dashboard. The core input is a machine learning model that produces the probability of success for every potential matchup. This output is then fed into a Monte Carlo Simulation that simulates the tournament 10,000 times. Next, the simulated data is inputted into an optimization model which reveals the best bracket we can choose. Finally, we can copy these results into an Excel workbook which visualizes the results and allows for easy data analysis.
 
-# The Data:
-All data is sourced from Kaggle (https://www.kaggle.com/c/mens-march-mania-2022) and includes historic game data, tournament data, ordinal ranking systems and a bunch of useless stuff. This is the only data used in the model and no outside sources factored into it.
+### The Data:
+All data is sourced from [Kaggle](https://www.kaggle.com/c/mens-march-mania-2022) and includes historic game data, tournament data, ordinal ranking systems and a bunch of useless stuff. This is the only data used in the model and no outside sources factored into it.
 
-# The ML Model
+### The ML Model
 The model exclusively uses the ordinal rankings. These are expert rankings that should incorporate most of the nuance that can be difficult to capture elsewhere. These rankings are simply joined to the historic games data and a standard model selection/10-fold CV hyper-parameter tunning process is undergone to select the best model. This model is then retrained on all historic data and run on the final rankings before the tournament. The output of this model is a CSV with every combination of every team and the likelihood that any given team will win. The metric being optimized for is log loss and our goal is to achieve a score under 0.6, although 0.5 would be ideal. In either case, our 2021 model produced a score of 0.85, so we can hopefully do better than that.
 
-# The Simulation
+### The Simulation
 The Monte Carlo Simulation is by far the most complex part of this approach. It inputs the output from the ML model, and loops through the tournament games to produce 10,000 different tournament outcomes. For each game, a random number is drawn and if it is less than the likelihood of team 1 winning, then team 1 wins, otherwise the other team wins. The final output includes a matrix of which teams won which games and the points that game would earn you if you selected it in your bracket. 
 This logic is fairly simple, but the code can be a little complex. The most important thing to note is that it uses a game-id structure that follows this basic format:
- 
+![Game IDs](https://github.com/thomasandr/MarchMadness22/blob/main/assets/Documentation/tournament_chart.jpg)
 
-# The Optimization Model
+### The Optimization Model
 Unlike the simulation, the optimization model has simple code but a complex logic. It takes the two datasets outputted by the simulation as inputs and selects the best bracket based on this data. The decision variables are a binary matrix with teams on the y-axis and games on the x-axis so that a 1 represents a team that won that game and a 0 represents either a loss or that they didn’t play. The constraints check that there can only be one winner per game and that a team cannot win a game unless they won the proceeding game in the tournament.
 
 The function being optimized is a little complicated. For every row in the simulated data it references the decision matrix and returns a 1 if that team was selected to win that game and a 0 if it was note. In order to preserve linearity, this is done by indexing both the simulated data and the decision-matrix. Essentially, this is the same as an “index(match)” in Excel. This produces a “virtual table” that can be multiplied by the simulated points matrix to produce the quantity of points earned. By summing these rows we produce a distribution of possible outcomes for each simulation based on the decision matrix. The mean of this distribution is maximized and both the distribution, as well as the final decision matrix, are outputted. All code is written using Pyomo and the GLPK solver.
 
-# The Excel Workbook
+### The Excel Workbook
 We can now copy the output of the optimization model into the workbook. The formulas will automatically update, and the final bracket will be produced. We are also able to do some quick analysis of the distribution, such as produce the mean, the standard deviation, a histogram of results and some other basic descriptive statistics. It is not fancy or pretty, but it works.
+<p align="center">
+   <img src="https://github.com/thomasandr/MarchMadness22/blob/main/assets/Documentation/workbook.png" />
+</p>
+
 
