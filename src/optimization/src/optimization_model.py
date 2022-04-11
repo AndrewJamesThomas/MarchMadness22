@@ -4,7 +4,7 @@ from pyomo.environ import *
 
 points = pd.read_csv("src/optimization/data/points_earned.csv")
 winners = pd.read_csv("src/optimization/data/winning_teams.csv")
-details = pd.read_csv("src/simulation/data/team_details.csv")
+details = pd.read_csv("src/simulation/data/team_details2.csv")
 
 teams = details["team_name"]
 games = winners.columns
@@ -73,8 +73,8 @@ SolverFactory("glpk").solve(model)
 
 pd.DataFrame([(model.dv[i](), i[0], i[1]) for i in model.dv])\
     .pivot(index=1, columns=2)[0]\
-    .to_csv("src/dashboard/data/optimal_results.csv", index=True)
+    .to_csv("src/optimization/output/optimal_results.csv", index=True)
 
 # export results distribution
 pd.DataFrame([sum([points.loc[i, g] * model.dv[(winners.loc[i, g], g)]() for g in games]) for i in sims])\
-    .to_csv("src/dashboard/data/optimal_distribution.csv", index=False)
+    .to_csv("src/optimization/output/optimal_distribution.csv", index=False)
