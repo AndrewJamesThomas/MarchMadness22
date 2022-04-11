@@ -7,8 +7,8 @@ class Tournament:
     Load external data that will be used in the tournament. This includes predictions, team names, etc.
     """
     def __init__(self,
-                 team_details_path="src/simulation/data/team_details.csv",
-                 game_predictions="assets/PreviousYear/game_predictions.csv"):
+                 team_details_path="src/simulation/data/team_details2.csv",
+                 game_predictions="src/simulation/data/game_predictions.csv"):
         self.team_details = pd.read_csv(team_details_path)
         self.predictions = pd.read_csv(game_predictions).set_index("team_1")
         self.points_lookup = {1: 2, 2: 3, 3: 5, 4: 8, 5: 13, 6: 21}

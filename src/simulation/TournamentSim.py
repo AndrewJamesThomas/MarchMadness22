@@ -177,5 +177,5 @@ if __name__ == "__main__":
     winning_teams = export.applymap(lambda x: x[1])
     points_earned = export.applymap(lambda x: x[2])
 
-    winning_teams.to_csv("src/optimization/data/winning_teams.csv", index=False)
-    points_earned.to_csv("src/optimization/data/points_earned.csv", index=False)
+    winning_teams.to_csv("src/simulation/output/winning_teams.csv", index=False)
+    points_earned.to_csv("src/simulation/output/points_earned.csv", index=False)
